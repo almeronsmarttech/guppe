@@ -25,3 +25,6 @@ print(dir(numero1))
 print(numero1.is_integer())
 print(numero2.is_integer())
 #print(nome_completo1.is_inte)
+import sys
+print(sys.getsizeof(numero1))
+print(sys.getsizeof(numero2))
