@@ -84,3 +84,96 @@ print(lista6)
 
 # mesma coisa que
 print(lista7[::-1])
+
+# contado elementos
+print(len(lista1))
+print(len(lista7))
+
+# removendo o último elemento
+print(lista1)
+elemento_excluido_lista1 = lista1.pop()
+print(f"O elemento excluído foi {elemento_excluido_lista1}.")
+print(lista1)
+print(lista7)
+elemento_excluido_lista7 = lista7.pop()
+print(f"O elemento excluído foi {elemento_excluido_lista7}.")
+print(lista7)
+
+# removendo elemento com índice específico
+
+elemento_excluido_lista7a = lista7.pop(6)
+print(f"O elemento excluído foi {elemento_excluido_lista7a}.")
+print(lista7)
+
+# removendo toda a lista (limpando a lista)
+print(lista6)
+lista6.clear()
+print(lista6)
+
+# repetindo listas
+lista6 = lista1 * 2
+print(lista6)
+
+# convertendo string para lista
+nome_completo = "Maurício Monteiro Almeron"
+print(nome_completo)
+print(type(nome_completo))
+lista_nome = list(nome_completo)
+print(lista_nome)
+print(type(lista_nome))
+
+# separando palavras de uma frase
+frase = "Este é um curso programação de linguagem python."
+print(frase)
+print(type(frase))
+lista_palavras = frase.split() # por padrão o separador é espaço
+print(lista_palavras)
+print(type(lista_palavras))
+
+frase1 = "Universidade;de;Caxias;do;Sul"
+print(frase1)
+print(type(frase1))
+lista_palavras1 = frase1.split(';') # por padrão o separador é espaço
+print(lista_palavras1)
+print(type(lista_palavras1))
+
+# transformando uma lista em uma string
+frase2 = ' '.join(lista_palavras1)
+print(frase2)
+
+# outros exemplos de join
+frase3 = '_'.join(lista_palavras1)
+print(frase3)
+
+frase4 = 'ALM'.join(lista_palavras1)
+print(frase4)
+
+lista8 = [1, 3.1415, True, 'Almeron', [1,2,3,4], 456_465_465]
+print(lista8)
+print(type(lista8))
+
+# iterando sobre listas
+# através do for
+lista9 = list('Almeron')
+print(lista9)
+soma = ''
+for elemento in lista9:
+    print(elemento)
+    soma += elemento
+
+print(soma)
+
+# através do while
+
+carrinho_compras = []
+produto = ''
+
+while produto != 'sair':
+    produto = input("Adicione um produto na lista ou digite 'sair' para sair:")
+    if produto != "sair":
+        carrinho_compras.append(produto)
+
+print(carrinho_compras)
+
+
+
