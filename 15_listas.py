@@ -168,12 +168,36 @@ print(soma)
 carrinho_compras = []
 produto = ''
 
-while produto != 'sair':
-    produto = input("Adicione um produto na lista ou digite 'sair' para sair:")
-    if produto != "sair":
-        carrinho_compras.append(produto)
+# while produto != 'sair':
+#     produto = input("Adicione um produto na lista ou digite 'sair' para sair:")
+#     if produto != "sair":
+#         carrinho_compras.append(produto)
 
 print(carrinho_compras)
 
+        #  0        1       2       3       4       5
+cores = ['bordo','azul','branco','azul','preto','branco']
+        #  -6        -5       -4       -3       -2       -1
 
+print(cores)
+print(cores[0])
+print(cores[1])
+print(cores[2])
+print(cores[3])
+print(cores[4])
+print(cores[5])
 
+#print(cores[6])
+
+print('***********')
+print(cores[-1])
+print(cores[-2])
+#print(cores[-7])
+print('***********')
+for indice, cor in enumerate(cores):
+    print(indice, cor)
+
+# Criando um dicionário da lista
+
+cores_dic = list(enumerate(cores))
+print(cores_dic)

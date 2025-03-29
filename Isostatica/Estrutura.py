@@ -11,12 +11,21 @@ class Estrutura:
         self.__cargas_desigualmente_distribuidas = cargas_desigualmente_distribuidas
 
     def Calcular_Reacoes_Apoio(self):
+
         #for i in self.__cargas_uniformemente_distribuidas:
         self.SomatorioX()
         self.SomatorioY()
 
     def SomatorioX(self):
         print("Somatório em X.")
+        # para todas as reações de apoio, verifica se tem carga em X
+
+        # para todas as cargas concentradas, verifica se tem carga em X
+
+        # para todas as cargas uniformemente distribuidas, verifica se tem carga em X
+
+        # para todas as cargas triangulares, verifica se tem carga em X
+
         for i in self.__apoios:
             print(i._Apoio__reacoes)
             print(dir(i))
