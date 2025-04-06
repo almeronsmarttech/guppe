@@ -197,8 +197,20 @@ print('***********')
 for indice, cor in enumerate(cores):
     print(indice, cor)
 
-# Criando um dicionário da lista
+# adicionando elementos repetidos
+cores.append('azul')
+cores.append('bordo')
 
+print(cores)
+
+# buscando o índice de um elemento
+print(cores.index('branco'))
+
+print(cores.index('bordo'))
+indice = cores.index('bordo',__start=0,__stop=len(cores))
+print(cores.index('vermelho'))
+
+# Criando um dicionário da lista
 cores_dic = list(enumerate(cores))
 print(cores_dic)
 
