@@ -201,3 +201,74 @@ for indice, cor in enumerate(cores):
 
 cores_dic = list(enumerate(cores))
 print(cores_dic)
+
+print(cores.index('branco'))
+print(cores.index('branco',3))
+print(cores.index('branco',0, len(cores)))
+
+# A forma de buscar um elemento que se repete mais de uma vez é através do for, armazenando o índice em uma lista
+elemento = 'branco'
+indices = []
+for i, x in enumerate(cores):
+    if x == elemento:
+        indices.append(i)
+print(indices)
+
+# Fazendo slice em listas
+
+lista = [1,2,3,4,5,6]
+
+print(lista[1:]) # do elemento de índice 1 até o final
+print(lista[:3]) # do primeiro elemento até o elemento de índice 3 - 1 (excludente)
+print(lista[1:3]) # do elemento de índice 1 até o elemento de índice 2
+print(lista[1:-1]) # do elemento de índice 1 até o penúltimo
+print(lista[::2]) # do primeiro elemento até o final, de 2 em 2
+print(lista[1::2]) # do segundo elemento até o final, de 2 em 2
+print(lista[::-1]) # do último elemento até o primeiro de 1 em 1
+print(lista[::-2]) # do último elemento até o primeiro de 2 em 2
+
+
+
+print(sum(lista)) # valor da soma dos elementos da lista
+print(max(lista)) # valor máximo dos elementos da lista
+print(min(lista)) # valor mínimo dos elementos da lista
+print(len(lista)) # tamanho da lista
+
+# transformando lista em tupla
+
+print(lista)
+print(type(lista))
+print(tuple(lista))
+print(type(tuple(lista)))
+
+# desempacotando a lista
+
+num1, num2, num3, num4, num5, num6 = lista
+
+print(num1)
+print(num5)
+
+print("********************")
+
+print(lista)
+
+lista_copia = lista.copy()
+print(lista_copia)
+lista_copia.append(7)
+print(lista_copia)
+
+# Quando faz uma cópia, ela é uma lista nova com os dados copiados da original *** INDEPENDENTES *** Deep Copy
+print("********************")
+
+print(lista)
+
+lista_copia2 = lista
+
+print(lista_copia2)
+lista_copia2.append(8)
+
+print(lista_copia2)
+
+print(lista)
+
+# Quando uma lista é atribuída a outra lista elas apontam para o mesmo local da memória *** DEPENDENTES *** Shallow Copy
