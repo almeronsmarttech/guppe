@@ -7,6 +7,10 @@ class Aco:
         self.__es = 21000
         print(f"Aço\nfyk: {self.__fyk} MPa\t fyd: {int(self.__fyd)}\t Es: {int(self.__es)} MPa")
 
+    @property
+    def fyd(self):
+        return self.__fyd
+
     # def calcular_Eci(self):
     #     if self.__fck <= 50:
     #         Eci = self.__alfa_e * 5600 * (self.__fck ** 0.5)
