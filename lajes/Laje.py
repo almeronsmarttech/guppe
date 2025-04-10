@@ -1,53 +1,87 @@
-import enum
+from ParametrosAraujo import *
 from Concreto import Concreto
-
-# class TIPO_LAJE(enum.Enum):
-#     bidirecional_simples = 1
-#     bidirecional_simplesa = 2
-#     bidirecional_simplesb = 3
-#     bidirecional_simplesc = 4
-#     bidirecional_simplesd = 5
-#     bidirecional_simplese = 6
-#     unidirecional_apoiada_apoiada = 7
-#     unidirecional_apoiada_engastada = 8
-#     unidirecional_engastada_engastada = 9
+from Aco import Aco
 
 
 class Laje:
-    def __init__(self, lx: float, ly: float, h: int, g: float, q: float, tipo_laje: int, concreto: Concreto):
-        self.__lx = lx
-        self.__ly = ly
+    def __init__(self, lx: float, ly: float, h: int, g: float, q: float, tipo_laje: int, concreto: Concreto, psi2=0.4):
+        self._lx = lx
+        self._ly = ly
         self.__h = h
-        self.__lambda = self.__lx / self.__ly
         self.__g = g
         self.__q = q
-        self.__p = self.__g + self.__q
-        self.__tipo_laje = tipo_laje
-        #print(self.__tipo_laje)
-        self.__Rx, self.__Rxe, self.__Ry, self.__Rye = 0, 0, 0, 0 # reações de apoio
+        self._p = self.__g + self.__q
+        self._p_serv =self.__g + 0.3* self.__q
+        self._tipo_laje = tipo_laje
+        self.__concreto = concreto
+        self._D = (self.__concreto.Ecs() *self.__h/10*self.__h/10*self.__h/10)/(12*(1-(self.__concreto.nu()*self.__concreto.nu()))) #  rigidez
+        print(f"D: {int(self._D)}")
+        self._w0 = 0 # flecha inicial
+
+
+
+
+class LajeUnidirecional(Laje):
+    def __init__(self, lx: float, ly: float, h: int, g: float, q: float, tipo_laje: int, concreto: Concreto, psi2=0.4):
+        super().__init__(lx, ly, h, g, q, tipo_laje, concreto,psi2)
+        self.__R = 0
+        self.__Re = 0
+        self.__M, self.__Me = 0, 0
+        self.__k = 0
+
+
+    def calcular_reacoes_apoio(self):
+        print("Calculo de reacoes de apoio")
+        if self._tipo_laje == 1:
+             self.__R = self._p * self._lx / 2.0
+             self.__M = self._p * self._lx * self._lx / 8.0
+             self.__k = 5 # para o cálculo da flecha inicial
+             print("Entrou no apoiada apoiada")
+        elif self._tipo_laje == 2:
+             self.__R = 3 * self._p * self._lx / 8.0
+             self.__Re = 5 * self._p * self._lx / 8.0
+             self.__M = self._p * self._lx * self._lx / 14.22
+             self.__Me = - self._p * self._lx * self._lx / 8.0
+             self.__k = 2 # para o cálculo da flecha inicial
+        elif self._tipo_laje == 3:
+             self.__Re = self._p * self._lx / 2.0
+             self.__M = self._p * self._lx * self._lx / 24
+             self.__Me = - self._p * self._lx * self._lx / 12
+             self.__k = 1
+        elif self._tipo_laje == 4:
+             self.__Re = self._p * self._lx
+             self.__Me = - self._p * self._lx * self._lx / 2
+             self.__k = 48
+        else:
+            print("Tipo de laje não encontrada")
+
+        print(f"Tipo de laje: {self._tipo_laje}")
+        print(f"Rx : {self.__R:.2f} kN/m\tRxe : {self.__Re:.2f} kN/m\nMx : {self.__M:.2f} kN.m/m\tMxe : {self.__Me:.2f} kN.m/m")
+
+    def calcular_flecha_inicial(self):
+        self._w0 = self.__k * self._p_serv * self._lx ** 4 / (384 * self._D)
+        print(f"Flecha inicial: {self._w0}")
+
+class LajeBidirecional(Laje):
+    def __init__(self, lx: float, ly: float, h: int, g: float, q: float, tipo_laje: int, concreto: Concreto, psi2=0.4):
+        super().__init__(lx, ly, h, g, q, tipo_laje, concreto, psi2)
+
+        self.__lambda, self.__wc, self.__mxe, self.__mye,self.__mx, self.__my, self.__mxy, self.__rxe, self.__rx, self.__rye, self.__ry, self.__beta_x, self.__beta_y = 0,0,0,0,0,0,0,0,0,0,0,0,0
+        self.__mx,self.__mxe,self.__my,self.__mye = 0,0,0,0
+        self.__Rx, self.__Rxe, self.__Ry, self.__Rye = 0, 0, 0, 0  # reações de apoio
         self.__Mx, self.__Mxe, self.__My, self.__Mye = 0, 0, 0, 0  # momentos
-        self.__D = 0 #  rigidez
-        self.__w0 = 0 # flecha inicial
 
+    # Usado no TCC de engenharia civil
     def calcular_reacoes2(self):
-        lambda_val = self.__ly / self.__lx if self.__tipo_laje not in ['2b', '3b', '5b'] else self.__lx / self.__ly
+        lambda_val = self._ly / self._lx if self._tipo_laje not in ['2b', '3b', '5b'] else self._lx / self._ly
 
-        reacoes = {
-            'Rxa': 0,
-            'Rya': 0,
-            'Rxe': 0,
-            'Rye': 0,
-            'Qxa': 0,
-            'Qya': 0,
-            'Qxe': 0,
-            'Qye': 0
-        }
+        reacoes = {'Rxa': 0,'Rya': 0,'Rxe': 0,'Rye': 0,'Qxa': 0,'Qya': 0,'Qxe': 0,'Qye': 0}
 
-        if self.__tipo_laje == 1:
+        if self._tipo_laje == 1:
             reacoes['Rxa'] = 0.25 / lambda_val
             reacoes['Rya'] = 0.5 - 0.25 / lambda_val
 
-        elif self.__tipo_laje == '2a':
+        elif self._tipo_laje == '2a':
             if lambda_val <= 0.73:
                 reacoes['Rye'] = 0.25 * lambda_val
                 reacoes['Rya'] = 0.4325 * lambda_val
@@ -57,7 +91,7 @@ class Laje:
                 reacoes['Rye'] = 0.635 - 0.2315 / lambda_val
                 reacoes['Rxa'] = 0.1825 / lambda_val
 
-        elif self.__tipo_laje == '2b':
+        elif self._tipo_laje == '2b':
             if lambda_val <= 0.73:
                 reacoes['Rxa'] = 0.25 * lambda_val
                 reacoes['Rxe'] = 0.4325 * lambda_val
@@ -67,7 +101,7 @@ class Laje:
                 reacoes['Rxe'] = 0.635 - 0.2315 / lambda_val
                 reacoes['Rya'] = 0.1825 / lambda_val
 
-        elif self.__tipo_laje == '3a':
+        elif self._tipo_laje == '3a':
             if lambda_val <= 0.58:
                 reacoes['Rye'] = 0.4325 * lambda_val
                 reacoes['Rxa'] = 0.5 - 0.4325 * lambda_val
@@ -75,7 +109,7 @@ class Laje:
                 reacoes['Rye'] = 0.5 - 0.145 / lambda_val
                 reacoes['Rxa'] = 0.145 / lambda_val
 
-        elif self.__tipo_laje == '3b':
+        elif self._tipo_laje == '3b':
             if lambda_val <= 0.58:
                 reacoes['Rxe'] = 0.4325 * lambda_val
                 reacoes['Rya'] = 0.5 - 0.4325 * lambda_val
@@ -83,13 +117,13 @@ class Laje:
                 reacoes['Rxe'] = 0.5 - 0.145 / lambda_val
                 reacoes['Rya'] = 0.145 / lambda_val
 
-        elif self.__tipo_laje == 4:
+        elif self._tipo_laje == 4:
             reacoes['Rya'] = 0.365 - 0.1825 / lambda_val
             reacoes['Rye'] = 0.635 - 0.3175 / lambda_val
             reacoes['Rxa'] = 0.1825 / lambda_val
             reacoes['Rxe'] = 0.3175 / lambda_val
 
-        elif self.__tipo_laje == '5a':
+        elif self._tipo_laje == '5a':
             if lambda_val >= 0.79:
                 reacoes['Rye'] = 0.5 - 0.1975 / lambda_val
                 reacoes['Rxa'] = 0.145 / lambda_val
@@ -99,7 +133,7 @@ class Laje:
                 reacoes['Rxa'] = 0.365 - 0.2315 * lambda_val
                 reacoes['Rxe'] = 0.635 - 0.4035 * lambda_val
 
-        elif self.__tipo_laje == '5b':
+        elif self._tipo_laje == '5b':
             if lambda_val >= 0.79:
                 reacoes['Rxe'] = 0.5 - 0.1975 / lambda_val
                 reacoes['Rya'] = 0.145 / lambda_val
@@ -109,154 +143,64 @@ class Laje:
                 reacoes['Rya'] = 0.365 - 0.2315 * lambda_val
                 reacoes['Rye'] = 0.635 - 0.4035 * lambda_val
 
-        elif self.__tipo_laje == 6:
+        elif self._tipo_laje == 6:
             reacoes['Rxe'] = 0.25 / lambda_val
             reacoes['Rye'] = 0.5 - 0.25 / lambda_val
 
-        area = self.__lx * self.__ly
+        area = self._lx * self._ly
 
         for key in ['Rxa', 'Rya', 'Rxe', 'Rye']:
             if reacoes[key] != 0:
-                reacoes['Q' + key[1:]] = reacoes[key] * area * self.__p / (self.__lx if 'x' in key else self.__ly)
+                reacoes['Q' + key[1:]] = reacoes[key] * area * self._p / (self._lx if 'x' in key else self._ly)
 
         return reacoes
 
     def calcular_reacoes(self):
-        """
-        Calcula as reações de apoio para diferentes tipos de lajes retangulares.
-        - lx: Comprimento na direção menor (horizontal)
-        - ly: Comprimento na direção maior (vertical)
-        - Q: Carga total aplicada na laje
-        - tipo: Tipo da laje (1 a 9)
-
-        Retorna um dicionário com os valores de R1, R2, R3 e R4.
-        """
-        lambda_laje = self.__lx / self.__ly
-        if self.__tipo_laje == 1:
-            print(f"p = {self.__p}")
-            R1 = R2 = 0.25 * self.__p *self.__lx * (2 - lambda_laje)
-            R3 = R4 = 0.25 * self.__p * self.__lx
-
-        elif self.__tipo_laje == 2:
-            R1 = R2 = 0.125 * self.__p * self.__lx * (4 - 2.732 * lambda_laje)
-            R3 = 0.433 * self.__p * self.__lx
-            R4 = 0.25 * self.__p * self.__lx
-
-        elif self.__tipo_laje == 3:
-            R1 = 0.2320724 * self.__p * self.__lx * (2.732 * lambda_laje)
-            R2 = 0.577 * R1
-            R3 = R4 = 0.183 * self.__p * self.__lx
-
-        elif self.__tipo_laje == 4:
-            R1 = self.__p * 0.366 * self.__lx * (1.155 - (self.__lx / self.__ly))
-            R2 = self.__p * 1.732 * R1
-            R3 = self.__p * 0.317 * self.__lx
-            R4 = self.__p * 0.183 * self.__lx
-
-        elif self.__tipo_laje == 5:
-            R1 = R2 = R3 = R4 = self.__p * 0.144 * self.__lx
-
-        elif self.__tipo_laje == 6:
-            R1 = R2 = self.__p * 0.433 * self.__lx * (1.155 - (self.__lx / self.__ly))
-            R3 = R4 = self.__p * 0.433 * self.__lx
-
-        elif self.__tipo_laje == 7:
-            R1 = self.__p * 0.232 * self.__lx * (1.578 - (self.__lx / self.__ly))
-            R2 = self.__p * 1.732 * R1
-            R3 = R4 = self.__p * 0.317 * self.__lx
-
-        elif self.__tipo_laje == 8:
-            R1 = R2 = self.__p * self.__lx * (2 - 0.789 * (self.__lx / self.__ly)) / 4
-            R3 = self.__p * (self.__lx / 4)
-            R4 = self.__p * 0.144 * self.__lx
-
-        elif self.__tipo_laje == 9:
-            R1 = R2 = self.__p * (self.__lx * (2 - self.__lx)) / (4 * self.__ly)
-            R3 = R4 = self.__p * (self.__lx / 4)
-
-
-
+        lx_ly = self._lx / self._ly
+        ly_lx = self._ly / self._lx
+        if self._tipo_laje == 1:
+            teste = buscar_parametros_laje (self, lx_ly, tabela_tipo1_lxly)
+            print(teste)
+        elif self._tipo_laje == 2:
+            teste = buscar_parametros_laje(self, lx_ly, tabela_tipo2_lxly)
+            print(teste)
+        elif self._tipo_laje == 3:
+            teste = buscar_parametros_laje(self, lx_ly, tabela_tipo3_lxly)
+            print(teste)
+        elif self._tipo_laje == 4:
+            teste = buscar_parametros_laje(self, lx_ly, tabela_tipo4_lxly)
+            print(teste)
+        elif self._tipo_laje == 5:
+            teste = buscar_parametros_laje(self, lx_ly, tabela_tipo5_lxly)
+            print(teste)
+        elif self._tipo_laje == 6:
+            teste = buscar_parametros_laje(self, lx_ly, tabela_tipo6_lxly)
+            print(teste)
         else:
-            raise ValueError("Tipo de laje inválido. Escolha um número de 1 a 9.")
+            raise ValueError("Tipo de laje inválido. Escolha um número de 1 a 6.")
 
-        return {
-            'R1': R1,
-            'R2': R2,
-            'R3': R3,
-            'R4': R4
-        }
+        self.__lambda, self.__wc, self.__mxe, self.__mye, self.__mx, self.__my, self.__mxy, self.__rxe, self.__rx, self.__rye, self.__ry, self.__beta_x, self.__beta_y = teste.values()
+
 
     def calcular_reacoes_apoio(self):
-        # caso 7:
-        print("Calculo de reacoes de apoio")
-        #if self.__tipo_laje.unidirecional_apoiada_apoiada:
-        M, Me = 0, 0
-        if self.__tipo_laje == 1:
-            R = self.__p * self.__lx / 2.0
-            M = self.__p * self.__lx * self.__lx / 8.0
-            k = 5 # para o cálculo da flecha inicial
-            print("Entrou no apoiada apoiada")
-        # caso 8:
-        #elif self.__tipo_laje.unidirecional_apoiada_engastada:
-        elif self.__tipo_laje == 2:
-            R = 3 * self.__p * self.__lx / 8.0
-            Re = 5 * self.__p * self.__lx / 8.0
-            M = self.__p * self.__lx * self.__lx / 14.22
-            Me = - self.__p * self.__lx * self.__lx / 8.0
-            k = 2 # para o cálculo da flecha inicial
-        # caso 9:
-        elif self.__tipo_laje == 3:
-        #elif self.__tipo_laje.unidirecional_engastada_engastada:
-            Re = self.__p * self.__lx / 2.0
-            M = self.__p * self.__lx * self.__lx / 24.0
-            Me = - self.__p * self.__lx * self.__lx / 12.0
-            k = 1
-        elif self.__tipo_laje == 4:
-            R = self.__p * self.__lx
-            Me = - self.__p * self.__lx * self.__lx / 2.0
-            k = 48
-        else:
-            print("Tipo de laje não encontrada")
+        self.__Rx =0.001*self.__rx*self._p * self._lx
+        self.__Rxe = 0.001 * self.__rxe * self._p * self._lx
+        self.__Ry=0.001 * self.__ry * self._p * self._lx
+        self.__Rye=0.001 * self.__rye * self._p * self._lx
+        print(f"Reações de Apoio:\nRx: {self.__Rx:.2f}\tRxe: {self.__Rxe:.2f}\tRy: {self.__Ry:.2f}\tRye: {self.__Rye:.2f}")
 
-        print(self.__tipo_laje)
-        print(f"Rx : {self.__Rx:.2f} kN/m\tRxe : {self.__Rxe:.2f} kN/m\nMx : {self.__Mx:.2f} kN.m\tMxe : {self.__Mxe:.2f} kN.m")
+    def calcular_momentos_fletores(self):
+        self.__Mx =0.001 * self.__mx * self._p * self._lx * self._lx
+        self.__Mxe = 0.001 * self.__mxe * self._p * self._lx * self._lx
+        self.__My=0.001 * self.__my * self._p * self._lx * self._lx
+        self.__Mye=0.001 * self.__mye * self._p * self._lx * self._lx
+        print(f"Momentos Fletores:\nMx: {self.__Mx:.2f}\tMxe: {self.__Mxe:.2f}\tRy: {self.__My:.2f}\tRye: {self.__Mye:.2f}")
 
-    def calcular_flecha_inicial(self, k):
-        self.__w0 = k * self.__p * self.__lx ** 4 / (384 * self.__D)
+    def imprimir_parametros(self):
+        print(f"{self.__lambda, self.__wc, self.__mxe, self.__mye,self.__mx, self.__my, self.__mxy, self.__rxe, self.__rx, self.__rye, self.__ry, self.__beta_x, self.__beta_y}")
 
-class Unidirecional(Laje):
-    def __init__(self, lx: float, ly: float, h: int, g: float, q: float, tipo_laje: int):
-        super().__init__(lx, ly, h, g, q, tipo_laje)
-        #self.__lambda = self.
-        #self.__restricao_y = True
-        #self.__restricao_z = False
+    def calcular_flecha_inicial(self):
+        self._w0 = 0.001 * self.__wc * self._p_serv * self._lx ** 4 / (self._D)
+        print(f"Flecha inicial: {self._w0}")
 
-    def calcular_reacoes_apoio(self):
-        pass
-        # # caso 7:
-        # print("Calculo de reacoes de apoio")
-        # if self.__tipo_laje.unidirecional_apoiada_apoiada:
-        #     self.__Rx = self.__p * self.__lx / 2.0
-        #     self.__Mx = self.__p * self.__lx * self.__lx / 8.0
-        #     k = 5 # para o cálculo da flecha inicial
-        #     print("Entrou no apoiada apoiada")
-        # # caso 8:
-        # elif self.__tipo_laje.unidirecional_apoiada_engastada:
-        #     self.__Rx = 3 * self.__p * self.__lx / 8.0
-        #     self.__Rxe = 5 * self.__p * self.__lx / 8.0
-        #     self.__Mx = self.__p * self.__lx * self.__lx / 14.22
-        #     self.__Mxe = - self.__p * self.__lx * self.__lx / 8.0
-        #     k = 2 # para o cálculo da flecha inicial
-        # # caso 9:
-        # elif self.__tipo_laje.unidirecional_engastada_engastada:
-        #     self.__Rxe = self.__p * self.__lx / 2.0
-        #
-        # else:
-        #     print("Tipo de laje não encontrada")
-        #
-        # print(self.__tipo_laje)
-        # print(f"Rx : {self.__Rx}\tRxe : {self.__Rxe}\tMx : {self.__Mx}\tMxe : {self.__Mxe}")
-        #
 
-class Bidirecional(Laje):
-    pass
