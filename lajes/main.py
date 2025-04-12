@@ -2,14 +2,40 @@ from Laje import LajeUnidirecional, LajeBidirecional
 from Viga import Viga
 from Pilar import Pilar
 from Concreto import Concreto, TipoAgregado
-from Aco import Aco
+from Aco import Aco, Barra
 from Pavimento import Pavimento
 
-#lx = float(input("lx (m):"))
-#ly = float(input("ly (m):"))
-
 C25 = Concreto(fck=25, tipo_agregado=TipoAgregado.CALCARIO)
-aco_CA50 = Aco()
+aco_CA50 = Aco(fyk=500)
+aco_CA60 = Aco(fyk=600)
+bitolas =[]
+barra_5mm = Barra(aco_CA60,diametro=5.0)
+bitolas.append(barra_5mm)
+barra_6_3mm = Barra(aco_CA50,diametro=6.3)
+bitolas.append(barra_6_3mm)
+barra_8mm = Barra(aco_CA50,diametro=8.0)
+bitolas.append(barra_8mm)
+
+
+print("****** Teste Laje Unidirecional ******")
+laje_uni = LajeUnidirecional(1.4, 5, 10, 5, 2.5, 1, C25, aco_CA50, bitolas, psi2 = 0.3)
+laje_uni.calcular_reacoes_apoio()
+laje_uni.calcular_momentos_fletores()
+laje_uni.calcular_flecha_inicial()
+laje_uni.calcular_flecha_final(alfa_f=2.5)
+laje_uni.calcular_armaduras()
+laje_uni.detalhar_armaduras()
+
+print("****** Teste Laje Bidirecional ******")
+laje_bi = LajeBidirecional(2.7, 5.1, 10, 3.5, 1.5, 5, C25, aco_CA50, bitolas, psi2 = 0.3)
+laje_bi.calcular_reacoes()
+#laje_bi.imprimir_parametros()
+laje_bi.calcular_reacoes_apoio()
+laje_bi.calcular_momentos_fletores()
+laje_bi.calcular_flecha_inicial()
+laje_bi.calcular_flecha_final(alfa_f=2.5)
+laje_bi.calcular_armaduras()
+laje_bi.detalhar_armaduras()
 # lx, ly = 4, 4
 # if lx / ly < 0.5:
 #     laje1 = LajeUnidirecional(lx,ly, 10,5,1,3, concreto)
@@ -45,20 +71,5 @@ aco_CA50 = Aco()
 #
 # pavimento = Pavimento(lajes,vigas, pilares)
 
-print("****** Teste Laje Unidirecional ******")
-laje_uni = LajeUnidirecional(1.4, 5, 10, 5, 2.5, 1, C25, aco_CA50, psi2 = 0.3)
-laje_uni.calcular_reacoes_apoio()
-laje_uni.calcular_flecha_inicial()
-laje_uni.calcular_flecha_final()
-laje_uni.calcular_As_min()
-
-print("****** Teste Laje Bidirecional ******")
-laje_bi = LajeBidirecional(2.7, 5.1, 10, 3.5, 1.5, 5, C25, aco_CA50, psi2 = 0.3)
-laje_bi.calcular_reacoes()
-laje_bi.imprimir_parametros()
-laje_bi.calcular_reacoes_apoio()
-laje_bi.calcular_momentos_fletores()
-laje_bi.calcular_flecha_inicial()
-laje_bi.calcular_flecha_final()
-laje_bi.calcular_armaduras()
-#laje_bi.calcular_As_min()
+#lx = float(input("lx (m):"))
+#ly = float(input("ly (m):"))
