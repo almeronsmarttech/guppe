@@ -72,3 +72,35 @@ nome = tuple(nome_completo[1])
 print(nome)
 print(nome.count('e'))
 print(nome.count('a')) # case sensitive
+
+# As tuplas devem ser utilizadas SEMPRE em que não devem ser alterados os dados da coleção
+
+meses_tupla = ('janeiro', 'fevereiro', 'março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro')
+print(len(meses_tupla))
+
+meses_lista = list(meses_tupla)
+meses_lista.append("Almeron") # Faz algum sentido isso?
+print(meses_lista)
+
+for i in meses_tupla:
+    print(i)
+
+n = 0
+while n < len(meses_tupla):
+    print(f"{n+1} - {meses_tupla[n]}")
+    n += 1
+
+print(meses_tupla.index('julho'))
+#print(meses_tupla.index('Almeron'))
+
+print(meses_tupla[2:6])
+
+tupla = (1,2,3)
+print(tupla)
+nova_tupla = tupla
+print(nova_tupla)
+outra_tupla = (4,5,6)
+nova_tupla = nova_tupla + outra_tupla
+print(f"tupla original: {tupla}") # Aqui não tem shallow copy como nas listas
+print(f"tupla nova: {nova_tupla}")
+
